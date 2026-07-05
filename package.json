@@ -1,0 +1,16 @@
+{
+  "name": "etsy-dashboard",
+  "version": "1.0.0",
+  "description": "Personal Etsy Shop Dashboard — Phase 1 Mock Data",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node src/app.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-ejs-layouts": "^2.5.1"
+  }
+}

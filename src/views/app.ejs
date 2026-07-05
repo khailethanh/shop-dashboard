@@ -1,0 +1,164 @@
+<script>
+  window.__REVENUE_DATA__ = <%- JSON.stringify(revenueByDay) %>;
+  window.__ANALYTICS__ = <%- JSON.stringify(analyticsData) %>;
+</script>
+
+<div id="demoBanner" class="demo-banner">
+  <span>📊 You are viewing <strong>demo data</strong> — no real Etsy account connected.</span>
+  <button id="demoBannerDismiss" aria-label="Dismiss">✕</button>
+</div>
+
+<div class="tabs-container">
+  <div class="tab-buttons" role="tablist">
+    <button class="tab-btn active" role="tab" aria-selected="true" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="listings">Listings</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="orders">Orders</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="analytics">Analytics</button>
+  </div>
+
+  <!-- Dashboard Tab -->
+  <div id="tab-dashboard" class="tab-panel active">
+    <div class="stat-cards">
+      <div class="stat-card">
+        <span class="stat-label">Total Orders</span>
+        <span class="stat-value"><%= stats.totalOrders.value %></span>
+        <span class="stat-trend"><%= stats.totalOrders.trend %></span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Revenue</span>
+        <span class="stat-value">$<%= stats.revenue.value.toFixed(2) %></span>
+        <span class="stat-trend"><%= stats.revenue.trend %></span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Avg Order Value</span>
+        <span class="stat-value">$<%= stats.avgOrderValue.value.toFixed(2) %></span>
+        <span class="stat-trend"><%= stats.avgOrderValue.trend %></span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Active Listings</span>
+        <span class="stat-value"><%= stats.activeListings.value %></span>
+        <span class="stat-trend"><%= stats.activeListings.trend %></span>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <h2>Revenue — Last 7 Days</h2>
+      <canvas id="revenueChart" height="100"></canvas>
+    </div>
+
+    <div class="section">
+      <h2>Recent Orders</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Buyer</th>
+            <th>Date</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% recentOrders.forEach(order => { %>
+          <tr>
+            <td><%= order.id %></td>
+            <td><%= order.buyerName %></td>
+            <td><%= order.date %></td>
+            <td><%= order.itemCount %></td>
+            <td>$<%= order.total.toFixed(2) %></td>
+            <td><span class="badge badge-<%= order.status %>"><%= order.status %></span></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Listings Tab -->
+  <div id="tab-listings" class="tab-panel" hidden>
+    <div class="table-controls">
+      <input type="text" id="listingsSearch" class="input" placeholder="Search listings…" aria-label="Search listings">
+      <select id="listingsSort" class="select">
+        <option value="title">Sort by Title</option>
+        <option value="price">Sort by Price</option>
+        <option value="views">Sort by Views</option>
+        <option value="quantity">Sort by Quantity</option>
+      </select>
+    </div>
+    <div id="listingsTableWrap">
+      <table class="table" id="listingsTable">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Views</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="listingsTbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="listingsPagination"></div>
+  </div>
+
+  <!-- Orders Tab -->
+  <div id="tab-orders" class="tab-panel" hidden>
+    <div class="table-controls">
+      <select id="ordersStatusFilter" class="select">
+        <option value="">All Statuses</option>
+        <option value="open">Open</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <input type="date" id="ordersDateFrom" class="input" aria-label="From date">
+      <input type="date" id="ordersDateTo" class="input" aria-label="To date">
+    </div>
+    <table class="table" id="ordersTable">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Buyer</th>
+          <th>Date</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="ordersTbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Analytics Tab -->
+  <div id="tab-analytics" class="tab-panel" hidden>
+    <div class="analytics-grid">
+      <div class="chart-section">
+        <h2>Top Listings by Views</h2>
+        <canvas id="topListingsChart" height="120"></canvas>
+      </div>
+      <div class="chart-section">
+        <h2>Orders by Day of Week</h2>
+        <canvas id="dayOfWeekChart" height="120"></canvas>
+      </div>
+      <div class="chart-section">
+        <h2>Revenue by Month</h2>
+        <canvas id="revenueMonthChart" height="120"></canvas>
+      </div>
+      <div class="stat-card conversion-card">
+        <span class="stat-label">Conversion Rate</span>
+        <span class="stat-value"><%= analyticsData.conversionRate %>%</span>
+        <span class="stat-trend">visitors → buyers</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div id="orderModal" class="modal-overlay" hidden aria-modal="true" role="dialog">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+    <h2 id="modalTitle">Order Detail</h2>
+    <div id="modalBody"></div>
+  </div>
+</div>
