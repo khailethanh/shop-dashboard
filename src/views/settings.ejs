@@ -1,13 +1,6 @@
 <div class="settings-page">
   <h1>Settings</h1>
 
-  <% if (notice === 'api_key_required') { %>
-  <div class="notice-box notice-warning" id="apiKeyNotice">
-    <strong>Etsy API Key required.</strong> Enter your API key below to connect with Etsy.
-    <button class="notice-dismiss" onclick="this.parentElement.remove()" aria-label="Dismiss">✕</button>
-  </div>
-  <% } %>
-
   <form id="settingsForm" class="settings-form" action="/settings/save" method="POST">
     <div class="form-group">
       <label for="shopName">Shop Name</label>
@@ -39,6 +32,24 @@
 
     <button type="button" id="saveSettings" class="btn btn-primary">Save Settings</button>
   </form>
+
+  <div class="connection-section">
+    <h2>Connection</h2>
+    <div class="connection-info">
+      <div class="connection-row">
+        <span class="connection-label">Status</span>
+        <span class="connection-value connection-status-connected">Connected</span>
+      </div>
+      <div class="connection-row">
+        <span class="connection-label">Last synced</span>
+        <span class="connection-value">2026-07-06 08:00 UTC</span>
+      </div>
+      <div class="connection-row">
+        <span class="connection-label">Next sync</span>
+        <span class="connection-value">Automatic</span>
+      </div>
+    </div>
+  </div>
 
   <div id="settingsToast" class="toast" hidden>Settings saved ✓</div>
 </div>
