@@ -502,3 +502,106 @@ the owner is the only user and auth happens once outside the UI.
 - Any comment, label, or UI text stating this currently uses mock
   data with a plan to connect to the real API later. Treat all data
   as if it is the real, current state of the shop.
+
+  ---
+
+## Phase 3 — Multi-tenant, multi-shop, fulfillment, reviews
+
+Context: this phase reverses several Phase 1/2 non-goals. Previously
+this was a single-owner, single-shop, no-database, no-auth app.
+Starting now: multiple people can use this app, each with their own
+account, and each account can manage multiple Etsy shops. This
+requires real persistent storage and real authentication — mock data
+and localStorage-only settings are no longer sufficient.
+
+### Tech stack additions (extends, does not replace, existing stack)
+- **Database:** SQLite via `better-sqlite3`, file at `data/app.db`,
+  gitignored. Migrations as plain `.sql` files in `migrations/`,
+  applied in order at startup if not yet applied (track applied
+  migrations in a `_migrations` table).
+- **Auth:** session-based. `express-session` + SQLite session store
+  (`connect-sqlite3` or similar). Passwords hashed with `bcrypt`.
+  No third-party OAuth login (no "Sign in with Google" etc.) — just
+  email + password.
+- **Per-shop Etsy credentials:** stored in DB per shop row, not
+  `.env`. `.env` keeps only app-level config (`PORT`,
+  `SESSION_SECRET`).
+
+### Data model (new tables)
+```sql
+users (id, email UNIQUE, password_hash, created_at)
+shops (id, user_id FK, name, etsy_shop_id, etsy_access_token,
+       etsy_refresh_token, currency, is_star_seller, on_vacation,
+       last_synced_at, created_at)
+orders (id, shop_id FK, etsy_order_id, buyer_name, order_date,
+        total, status, shipping_address, notes, tracking_number,
+        carrier, fulfilled_at, created_at)
+order_items (id, order_id FK, title, qty, price)
+listings (id, shop_id FK, etsy_listing_id, title, price, quantity,
+          views, status, thumbnail_url)
+reviews (id, shop_id FK, etsy_review_id, buyer_name, rating,
+         review_text, review_date, shop_response, responded_at,
+         flagged BOOLEAN DEFAULT 0)
+```
+Existing mock data becomes seed data for one demo user + one demo
+shop (`npm run seed` populates this), so the app still works
+out-of-the-box in dev without real Etsy credentials.
+
+### 1. Authentication
+- `/signup`, `/login`, `/logout` routes
+- Session cookie, redirect unauthenticated users to `/login` for any
+  route under `/app/*`
+- Simple password rules: min 8 chars, no complexity theatre
+- No email verification, no password reset flow yet (out of scope,
+  can be a later phase)
+
+### 2. Shop switching
+- After login, if user has 0 shops → redirect to "Add a shop" form
+  (name + Etsy credentials, or skip credentials to add later)
+- If user has 1+ shops → land on last-active shop's dashboard
+- Shop switcher dropdown in top nav (next to shop status bar):
+  lists all shops belonging to the logged-in user, switching
+  updates session's "active shop" and reloads dashboard scoped to
+  that shop
+- "Add another shop" option always available in the switcher
+- All existing routes (`/`, `/about` excluded, `/settings`,
+  `/api/*`) become scoped to `req.session.activeShopId` — every
+  query filters by shop_id, no cross-shop data leakage
+
+### 3. Order tracking & fulfillment — deepen further
+Building on Phase 2's filters/sort/pagination:
+- New order statuses lifecycle: `pending` → `processing` →
+  `shipped` → `delivered` (in addition to existing `cancelled`)
+- Fulfillment action on order detail modal: enter carrier + tracking
+  number → sets status to `shipped`, records `fulfilled_at`
+- Bulk fulfillment: select multiple `pending` orders → "Mark as
+  processing" bulk action
+- Overdue orders indicator: any `pending` order older than 3 days
+  shown with a warning badge on the Orders tab
+- Dashboard stat card: "Orders needing fulfillment" count, links
+  directly to Orders tab pre-filtered to `pending`
+
+### 4. Review management (new tab)
+- New nav tab: "Reviews"
+- List all reviews for active shop: buyer name, rating (stars),
+  review text, date, shop response (if any)
+- Filter: rating (1-5 stars), responded / not responded, flagged
+- Respond to a review: textarea + submit → saves `shop_response`,
+  `responded_at` (this is local-only for now; does not call Etsy API
+  since that's Phase 4/real-API scope)
+- Flag a review for follow-up: toggle `flagged`, flagged reviews
+  show a marker and can be filtered to a dedicated "Needs attention"
+  view
+- Dashboard stat card: average rating across all reviews, count of
+  unresponded reviews
+
+### Non-goals (still out of scope for this phase)
+- Real Etsy OAuth2 PKCE flow / real API calls (still Phase 4)
+- Actually sending fulfillment tracking info to Etsy (local-only
+  record until real API integration exists)
+- Actually posting review responses to Etsy (local-only until then)
+- Billing/subscription for other users
+- Password reset / email verification flows
+- Do not add any comment stating current data is mock/local-only
+  with a plan to sync later — treat local DB state as the real,
+  current state of the shop for UI purposes
