@@ -1,12 +1,8 @@
 <script>
   window.__REVENUE_DATA__ = <%- JSON.stringify(revenueByDay) %>;
   window.__ANALYTICS__ = <%- JSON.stringify(analyticsData) %>;
+  window.__ORDERS_DATA__ = <%- JSON.stringify(orders) %>;
 </script>
-
-<div id="demoBanner" class="demo-banner">
-  <span>📊 You are viewing <strong>demo data</strong> — no real Etsy account connected.</span>
-  <button id="demoBannerDismiss" aria-label="Dismiss">✕</button>
-</div>
 
 <div class="tabs-container">
   <div class="tab-buttons" role="tablist">
@@ -105,7 +101,14 @@
 
   <!-- Orders Tab -->
   <div id="tab-orders" class="tab-panel" hidden>
-    <div class="table-controls">
+    <div class="orders-toolbar">
+      <input id="orders-search" type="text" class="input" placeholder="Search buyer or order ID">
+      <select id="orders-sort" class="select">
+        <option value="date-desc">Date (newest)</option>
+        <option value="date-asc">Date (oldest)</option>
+        <option value="total-desc">Total (high–low)</option>
+        <option value="total-asc">Total (low–high)</option>
+      </select>
       <select id="ordersStatusFilter" class="select">
         <option value="">All Statuses</option>
         <option value="open">Open</option>
@@ -128,21 +131,42 @@
       </thead>
       <tbody id="ordersTbody"></tbody>
     </table>
+    <div class="pagination-controls">
+      <button id="orders-prev">Prev</button>
+      <span id="orders-page-info">Showing 1–10 of 0</span>
+      <button id="orders-next">Next</button>
+    </div>
   </div>
 
   <!-- Analytics Tab -->
   <div id="tab-analytics" class="tab-panel" hidden>
+    <div class="analytics-toolbar">
+      <button class="export-csv-btn" id="export-csv-btn">Export CSV</button>
+    </div>
     <div class="analytics-grid">
-      <div class="chart-section">
-        <h2>Top Listings by Views</h2>
-        <canvas id="topListingsChart" height="120"></canvas>
+      <div class="side-by-side-charts">
+        <div class="chart-section">
+          <h2>Top Listings by Views</h2>
+          <canvas id="topListingsChart" height="120"></canvas>
+        </div>
+        <div class="chart-section">
+          <h2>Top Listings by Revenue</h2>
+          <canvas id="topListingsByRevenueChart" height="120"></canvas>
+        </div>
       </div>
       <div class="chart-section">
         <h2>Orders by Day of Week</h2>
         <canvas id="dayOfWeekChart" height="120"></canvas>
       </div>
       <div class="chart-section">
-        <h2>Revenue by Month</h2>
+        <div class="period-toggle-row">
+          <div class="period-toggle">
+            <button class="period-btn active" data-period="monthly">Monthly</button>
+            <button class="period-btn" data-period="weekly">Weekly</button>
+            <button class="period-btn" data-period="daily">Daily</button>
+          </div>
+        </div>
+        <h2>Revenue <span class="pct-change-badge" id="pct-change-badge">+0%</span></h2>
         <canvas id="revenueMonthChart" height="120"></canvas>
       </div>
       <div class="stat-card conversion-card">
