@@ -20,5 +20,8 @@ function renderDashboard(req, res) {
 
 router.get('/', renderDashboard);
 router.get('/app', renderDashboard);
+router.get('/about', (req, res) => {
+  res.render('about', { title: 'About', currentPath: '/about' });
+});
 
 module.exports = router;
