@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS order_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER NOT NULL REFERENCES orders(id),
+  title TEXT,
+  qty INTEGER,
+  price REAL
+);
