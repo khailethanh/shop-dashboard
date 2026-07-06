@@ -1,33 +1,48 @@
-# Design: Personal Etsy Shop Dashboard (Phase 1 — Mock Data)
+# Design: Personal Etsy Shop Dashboard (Phase 2 — Real Personal App)
 
 ## Summary
 
 A single-owner Etsy shop dashboard web app rendered server-side with EJS.
-Phase 1 delivers a fully functional demo using hardcoded mock data — no Etsy
-API key required. The goal is a polished, reviewable app suitable for
-presenting to Etsy when applying for API access. Phase 2 (real OAuth2 +
-live data) is explicitly out of scope.
+Phase 1 (mock data, demo landing page, demo banner) is complete. Phase 2
+converts the app into a real personal-use tool: the landing page and demo
+framing are removed, the dashboard becomes the root route, and the Orders and
+Analytics tabs gain deeper functionality. All data remains mock; no Etsy API
+calls are added in this pass. Phase 3 (real OAuth2 + live data) is out of
+scope.
 
 ---
 
 ## Assumptions / Clarifications
 
-- The `.env` file is included in source for developer convenience (it only
-  sets `PORT` and an empty `ETSY_API_KEY`). It is listed in `.gitignore` so
-  secrets are not committed. The Docker image uses the `ENV PORT=3000`
-  instruction as the authoritative default; the `.env` file is also passed
-  via `env_file` in docker-compose so local overrides still work.
-- `recentOrders` in `mockData.js` is computed at module load time as the
-  last 5 elements of the `orders` array (slice, not a separate hardcoded list).
-- Chart data on the Analytics tab is embedded into the EJS template via an
-  inline `<script>` block (i.e., `window.__ANALYTICS__ = <%- JSON.stringify(analyticsData) %>`),
-  so `charts.js` does not need to make extra HTTP requests for that data.
-  The revenue line chart on the Dashboard tab uses the same pattern with
-  `revenueByDay`.
-- Settings are stored entirely in browser `localStorage`; the `POST /settings/save`
-  route returns `{ ok: true }` but is otherwise a no-op on the server.
-- `POST /settings/save` is handled inside `src/routes/settings.js` (same
-  file as the GET handler), not a separate file.
+- Phase 1 implementation is complete and committed. Phase 2 tasks are additive
+  changes and deletions on top of Phase 1 code.
+- "Remove landing.ejs and its route" means the file is deleted and `GET /`
+  now renders `app.ejs` directly (keeping `/app` as an alias for backward
+  compatibility).
+- `shippingAddress` and `notes` fields are added to every order in
+  `mockData.js`; existing fields are unchanged.
+- For the Analytics period toggle (Monthly / Weekly / Daily), new mock data
+  arrays `revenueByWeek` and the existing `revenueByDay` are used.
+  The toggle switches which dataset the `revenueMonthChart` renders without a
+  page reload.
+- "% change vs previous period" on the revenue chart title is computed
+  client-side from mock data (compare sum of last half vs first half of the
+  currently selected period dataset).
+- The "Top Listings by Revenue" chart uses a `topListingsByRevenue` array
+  added to `analyticsData`. Revenue per listing is computed from orders mock
+  data at module load time.
+- "Export CSV" on Analytics tab downloads whatever is currently in the visible
+  orders table (all filtered rows) as CSV, built entirely client-side (no
+  server route).
+- The `/auth/etsy` route stays in the codebase but removes the
+  "api_key_required" redirect logic — it can redirect to Etsy OAuth or return
+  a stub; no user-facing error text.
+- Settings page: `?notice=api_key_required` handling is removed; instead a
+  static "Connection" section is added showing `Last synced` timestamp and a
+  "Next sync" placeholder.
+- No text anywhere in the UI mentions "mock data", "demo", or "connect to
+  Etsy". The app presents itself as a live personal shop dashboard.
+- `recentOrders` remains `orders.slice(-5)` computed at module load.
 
 ---
 
@@ -50,37 +65,41 @@ live data) is explicitly out of scope.
 
 **3000** — the app listens on the port defined by the `PORT` env var, defaulting
 to `3000`. The Dockerfile sets `ENV PORT=3000`; docker-compose.yml exposes
-`${APP_PORT:-4000}:3000`.
+`${APP_PORT:-4000}:3000`. The app reads `process.env.PORT` at startup.
 
 ---
 
 ## File Structure
 
+Phase 2 deletes `src/views/landing.ejs`; all other files from Phase 1 are
+retained and modified where noted.
+
 ```
-etsy-dashboard/
+etsy-dashboard/            (files at project root, no subdirectory)
 ├── src/
 │   ├── app.js                  ← Express entry; reads PORT from env
 │   ├── data/
-│   │   └── mockData.js         ← all mock data, one exported object
+│   │   └── mockData.js         ← all mock data (Phase 2: add shippingAddress,
+│   │                               notes to orders; add topListingsByRevenue,
+│   │                               revenueByWeek to analyticsData)
 │   ├── routes/
-│   │   ├── index.js            ← GET /, GET /app, GET /about
-│   │   ├── auth.js             ← GET /auth/etsy, GET /auth/callback
+│   │   ├── index.js            ← GET / → app.ejs, GET /app alias, GET /about
+│   │   ├── auth.js             ← GET /auth/etsy (no user-facing error), GET /auth/callback
 │   │   ├── api.js              ← GET /api/status, GET /api/mock/*
 │   │   └── settings.js         ← GET /settings, POST /settings/save
 │   └── views/
-│       ├── layout.ejs          ← shared HTML shell, nav, status bar, footer
-│       ├── landing.ejs
-│       ├── app.ejs             ← 4-tab dashboard
-│       ├── about.ejs
-│       └── settings.ejs
+│       ├── layout.ejs          ← shared HTML shell (unchanged from Phase 1)
+│       ├── app.ejs             ← UPDATED: no demo banner; deeper Orders & Analytics tabs
+│       ├── about.ejs           ← unchanged
+│       └── settings.ejs        ← UPDATED: remove notice handling, add Connection section
 ├── public/
 │   ├── css/
-│   │   └── style.css
+│   │   └── style.css           ← UPDATED: styles for new UI elements
 │   └── js/
-│       ├── app.js              ← tab switching, listings/orders logic, modal
-│       ├── charts.js           ← Chart.js init for all 4 charts
-│       └── settings.js         ← localStorage save/load, toast
-├── .env                        ← PORT=3000, ETSY_API_KEY= (committed for dev)
+│       ├── app.js              ← UPDATED: orders enhancements, export CSV, no demo banner
+│       ├── charts.js           ← UPDATED: period toggle, % change badge, dual top-listings charts
+│       └── settings.js         ← unchanged
+├── .env
 ├── .gitignore
 ├── package.json
 ├── Dockerfile
@@ -89,125 +108,146 @@ etsy-dashboard/
 
 ---
 
-## Data Model (`src/data/mockData.js`)
+## Data Model (`src/data/mockData.js`) — Phase 2 changes
 
-Single exported object `mockData` with keys:
+### Orders — new fields on every order object
 
-- **`shop`**: `{ name, currency, totalSales, isStarSeller, onVacation, lastSynced }`
-- **`stats`**: `{ totalOrders, revenue, avgOrderValue, activeListings }` — each `{ value, trend }`
-- **`listings`**: array of 10 objects `{ id, title, price, quantity, views, status, thumbnail }`
-  - Mix of `"active"` / `"inactive"` statuses
-  - Prices $12–$95, views 50–800
-- **`orders`**: array of 10 objects `{ id, buyerName, date, items[{title,qty}], itemCount, total, status }`
-  - Mix of `"open"` / `"completed"` / `"cancelled"` statuses
-  - Dates spread across last 90 days from 2026-07-05
-- **`recentOrders`**: computed at module load as `orders.slice(-5)`
-- **`revenueByDay`**: 7 items `{ date, revenue }` for Jun 29–Jul 5 2026
-- **`analyticsData`**: `{ topListings[5], byDayOfWeek[7], revenueByMonth[6], conversionRate }`
+```js
+{
+  // existing fields unchanged ...
+  shippingAddress: "123 Main St, Springfield, IL 62701, USA",
+  notes: ""   // empty string for most; a few have a short note
+}
+```
 
----
+### `analyticsData` — new keys
 
-## Routes
-
-| Method | Path | File | Notes |
-|---|---|---|---|
-| GET | / | routes/index.js → landing.ejs | Hero + features + demo preview |
-| GET | /app | routes/index.js → app.ejs | 4-tab dashboard |
-| GET | /about | routes/index.js → about.ejs | About page |
-| GET | /settings | routes/settings.js → settings.ejs | Settings form; show notice if `?notice=api_key_required` |
-| POST | /settings/save | routes/settings.js | Returns `{ ok: true }` |
-| GET | /auth/etsy | routes/auth.js | If `ETSY_API_KEY` set: redirect to Etsy OAuth stub. Else: redirect to `/settings?notice=api_key_required` |
-| GET | /auth/callback | routes/auth.js | Returns JSON `{ status: "oauth_not_implemented" }` |
-| GET | /api/status | routes/api.js | Returns `{ connected: false, shop: mockData.shop }` |
-| GET | /api/mock/listings | routes/api.js | Returns `mockData.listings` |
-| GET | /api/mock/orders | routes/api.js | Returns `mockData.orders` |
+```js
+analyticsData = {
+  // existing keys unchanged ...
+  topListingsByRevenue: [
+    // top 5 listings by total revenue earned (computed from orders at module load)
+    // each: { title (max 20 chars), revenue }
+  ],
+  revenueByWeek: [
+    // 6 items, last 6 weeks: { week: "Jun W1", revenue: 310 }
+  ]
+  // revenueByDay (existing) is also used for the "Daily" period view
+}
+```
 
 ---
 
-## Views
+## Routes — Phase 2 changes
 
-### layout.ejs
-Receives: `title`, `body`, `shop`, `currentPath` (for active nav highlighting).
-- `<head>`: charset, viewport, `<title><%= title %> — MyShop Dashboard</title>`, style.css, Chart.js CDN, Lucide CDN
-- Top nav (56px): logo "MyShop Dashboard" → `/`; links: Dashboard `/app`, About `/about`, Settings `/settings` (gear icon)
-- Shop status bar (36px, `#FFF9F6`): shop name, Star Seller badge (if `isStarSeller`), total sales, On Vacation checkbox (localStorage), Last synced formatted
-- `<%- body %>` content area
-- Footer: "© 2026 MyShop Dashboard — Personal Etsy shop tool" + shortcut hint on /app page
-- Script tags for `public/js/app.js`, `charts.js`, `settings.js` — included only on pages that need them
+| Method | Path | Notes |
+|---|---|---|
+| GET | / | Now renders `app.ejs` directly (was `landing.ejs`) |
+| GET | /app | Alias; renders same `app.ejs` |
+| GET | /about | Unchanged |
+| GET | /settings | Remove `?notice=api_key_required` handling |
+| GET | /auth/etsy | Keep route; remove redirect-to-settings-with-notice logic |
+| All others | unchanged | — |
 
-### landing.ejs
-Hero: H1, subheading, "Connect with Etsy" CTA → `/auth/etsy`, "Or preview the demo →" → `/app`.
-Features: 3 cards with Lucide icons (Track Orders, Manage Listings, View Analytics).
-Demo preview: styled div with placeholder text "Live demo preview".
+---
+
+## Views — Phase 2 changes
 
 ### app.ejs
-- Demo mode banner (yellow, dismissible, localStorage key `demoBannerDismissed`)
-- 4 tab buttons: `data-tab="dashboard"`, `data-tab="listings"`, `data-tab="orders"`, `data-tab="analytics"`
-- Tab panels (shown/hidden by JS):
-  - **Dashboard**: 4 stat cards, revenue line chart (`canvas#revenueChart`), recent orders table
-  - **Listings**: search input + sort dropdown, table with pagination (5/page)
-  - **Orders**: status filter + date range filter, table, order detail modal
-  - **Analytics**: `canvas#topListingsChart`, `canvas#dayOfWeekChart`, `canvas#revenueMonthChart`, conversion rate card
-- Inline `<script>` blocks embed `revenueByDay` and `analyticsData` as `window.__REVENUE_DATA__` and `window.__ANALYTICS__` for use by charts.js
 
-### about.ejs
-H1, purpose paragraph, tech stack list, privacy note box, developer disclaimer.
+Removed:
+- Demo mode banner div and its dismiss button entirely.
+
+Orders tab additions:
+- Search input: "Search by buyer or order ID..." — client-side filter on `buyerName` and `id`
+- Sort dropdown: "Sort by: Date ↓ | Date ↑ | Total ↓ | Total ↑ | Status"
+- Pagination: 10 rows per page with "Showing X–Y of Z" label and Prev/Next buttons
+- Order detail modal: add `shippingAddress` field and `notes` field (show "—" if empty)
+
+Analytics tab additions:
+- Revenue by Month chart: add period toggle buttons above chart (Monthly / Weekly / Daily)
+- "% change vs previous period" badge next to "Revenue" chart section heading
+- Second "Top Listings" chart: `canvas#topListingsByRevenueChart` — horizontal bar, by revenue;
+  displayed side-by-side with existing `topListingsChart` (by views)
+- "Export CSV" button in the tab toolbar; downloads current visible orders table as CSV
+
+Inline data passed to client via `<script>` blocks:
+```html
+<script>
+  window.__REVENUE_DATA__    = <%- JSON.stringify(revenueByDay) %>;
+  window.__ANALYTICS__       = <%- JSON.stringify(analyticsData) %>;
+  // analyticsData now includes topListingsByRevenue and revenueByWeek
+</script>
+```
 
 ### settings.ejs
-Form with 4 fields (shopName text, currency radio, dateFormat radio, etsyApiKey password).
-Save button triggers `settings.js`. Yellow dismissible notice if `?notice=api_key_required`.
+
+Removed:
+- `?notice=api_key_required` yellow dismissible notice block
+
+Added:
+- "Connection" section (styled info box, below the form):
+  - "Status: Connected"
+  - "Last synced: [formatted lastSynced from mockData.shop]"
+  - "Next sync: Automatic" (static placeholder text)
+
+### landing.ejs
+
+Deleted entirely. File removed from the repo.
 
 ---
 
-## Client-Side JS
+## Client-Side JS — Phase 2 changes
 
 ### public/js/app.js
-- Tab switching with `aria-selected` and active class management
-- Keyboard shortcuts (1–4, r/R, s/S) — active only when no input is focused
-- Listings: fetch `/api/mock/listings`, render table with search filter, sort, 5-per-page pagination, prev/next
-- Orders: fetch `/api/mock/orders`, apply status + date-range filters, render table
-- Order detail modal: open on row click, close on overlay click or ESC
-- Demo banner dismiss (localStorage `demoBannerDismissed`)
-- On Vacation toggle (localStorage `onVacation`)
+
+Removed:
+- Demo banner dismiss logic (references to `demoBannerDismissed` localStorage key)
+
+Orders section additions:
+- Buyer/order-ID search input: filters `ordersData` array on `buyerName.toLowerCase()` and `id.toLowerCase()`
+- Sort dropdown handler: sorts filtered array by date, total, or status before rendering
+- Pagination: track `ordersPage` state, 10 per page, render "Showing X–Y of Z", Prev/Next
+- Modal: display `shippingAddress` and `notes` fields in order detail modal
+
+Analytics:
+- "Export CSV" button: on click, serialise current orders data (all filtered rows, all columns) as CSV and trigger browser download via `Blob` + `URL.createObjectURL`
 
 ### public/js/charts.js
-- Reads `window.__REVENUE_DATA__` and `window.__ANALYTICS__` (set inline in app.ejs)
-- Initialises 4 Chart.js charts on `DOMContentLoaded`:
-  - `revenueChart` — line, last 7 days revenue
-  - `topListingsChart` — horizontal bar, top 5 by views
-  - `dayOfWeekChart` — vertical bar, orders by day of week
-  - `revenueMonthChart` — line, revenue by month
-- Colour palette: Primary `#F1641E`, Secondary `#222222`, Muted `#D4D4D4`, Success `#4CAF50`
 
-### public/js/settings.js
-- On load: populate form from localStorage
-- On save click: write localStorage, show 3-second fixed bottom-right toast "Settings saved ✓"
+Added:
+- `topListingsByRevenueChart` — horizontal bar chart, `canvas#topListingsByRevenueChart`
+- Period toggle for revenue chart:
+  - Track `currentPeriod` state (`'monthly'` / `'weekly'` / `'daily'`)
+  - On toggle button click: destroy and re-create `revenueMonthChart` with appropriate dataset from `window.__ANALYTICS__`
+  - Button labels: "Monthly" / "Weekly" / "Daily"
+- `% change` badge:
+  - Computed from currently selected period dataset: compare sum of last half vs first half
+  - Rendered as text node updated alongside the period toggle
+  - Green if positive, red if negative, grey if zero
 
 ---
 
-## Styling (`public/css/style.css`)
+## Styling (`public/css/style.css`) — Phase 2 additions
 
-CSS custom properties on `:root` as specified in requirements.
-Key rules:
-- Max content width 1100px centred
-- Nav 56px, status bar 36px
-- Tab buttons underline style, active tab `--etsy-orange` 2px underline
-- Stat cards: 4-col grid desktop / 2-col tablet (≤768px) / 1-col mobile
-- Tables: full-width, border-collapse, alternating row bg `#FAFAFA`
-- Status badges: border-radius 999px
-- Modal: position fixed, full-screen semi-transparent overlay, centred box max-width 500px
-- `.skeleton` class: shimmer CSS animation (`@keyframes shimmer`, linear-gradient)
-- Single breakpoint at 768px
+New selectors / rules needed:
+- `.period-toggle` — button group above revenue chart, active button gets `--etsy-orange` fill
+- `.pct-change-badge` — inline badge next to revenue chart heading (reuses existing trend badge colours)
+- `.orders-toolbar` — flex row with gap for search + sort + date filter dropdowns
+- `.export-csv-btn` — styled button in analytics tab toolbar
+- `.connection-section` — info box in settings.ejs (light border, border-radius 8px, padding)
+- `.side-by-side-charts` — flex row for the two top-listings charts, wraps at 600px
+
+All existing CSS rules from Phase 1 remain unchanged.
 
 ---
 
 ## Non-Goals (Out of Scope)
 
-- Real Etsy OAuth2 PKCE flow
-- Any live API calls to Etsy
+- Real Etsy OAuth2 PKCE flow or live API calls
 - Database or file-based session storage
 - User authentication / multi-user support
-- Production deployment or HTTPS
+- Production HTTPS
 - Image upload or file management
-- Any page or feature not listed in requirements
-- Phase 2 features of any kind
+- Any UI text implying this is a demo, uses mock data, or will "connect later"
+- Phase 3 (live Etsy data) features of any kind

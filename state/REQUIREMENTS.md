@@ -448,12 +448,57 @@ services:
 
 ---
 
-## Out of scope (do not implement)
+## Phase 2 — Convert to real personal app (supersedes Phase 1 landing/demo spec above)
 
-- Real Etsy OAuth2 PKCE flow (Phase 2)
-- Any live API calls to Etsy
-- Database or file-based session storage
-- User authentication or multi-user support
-- Production deployment or HTTPS
-- Image upload or file management
-- Any page or feature not listed above
+Context: Phase 1 built a demo-style landing page and "Demo mode"
+banner because we thought Etsy required a live app to review before
+granting API access. That is incorrect for personal-access apps —
+Etsy's personal access tier is granted from the registration form
+alone, no live app review needed. This app is single-owner personal
+use only and will never need a "connect your account" flow, since
+the owner is the only user and auth happens once outside the UI.
+
+### Remove (delete these, do not just hide)
+- `views/landing.ejs` and its route (`GET /` rendering landing.ejs)
+- "Connect with Etsy" button and "Or preview the demo" link
+- Demo preview static section
+- Demo mode banner in `app.ejs` ("Demo mode — connect Etsy to see
+  real data" + dismiss logic in `app.js`)
+- `/auth/etsy` "not configured" redirect messaging — keep the route
+  but it should assume a valid session going forward, no user-facing
+  "please connect" text anywhere
+- `?notice=api_key_required` handling in `settings.ejs`
+
+### Change
+- `GET /` now renders what used to be `app.ejs` directly (rename
+  route mapping, keep `/app` as an alias if simplest)
+- Layout status bar and footer stay as-is — they already read as a
+  real running app, do not change them
+- Settings page: remove "API key required" notice entirely; instead
+  show a static "Connection" section with `Last synced` timestamp
+  and a "Next sync" placeholder, styled as if the integration is
+  live and healthy
+
+### Deepen — Orders tab
+- Add filters: status (open / completed / cancelled), date range
+  (existing dropdown stays), search by buyer name or order ID
+- Add sort: by date, by total, by status
+- Keep existing row-click modal, add to it: shipping address field
+  (add `shippingAddress` to each mock order), order notes field
+  (add `notes`, can be empty string)
+- Add pagination (10 per page) to match the Listings tab pattern
+
+### Deepen — Analytics tab
+- Add period toggle to Revenue by Month chart: Monthly / Weekly /
+  Daily, backed by new mock data arrays as needed
+- Add "% change vs previous period" badge next to the revenue chart
+  title, computed from mock data
+- Add a second "Top Listings" ranking by revenue (in addition to the
+  existing by-views ranking) — two side-by-side small bar charts
+- Add "Export CSV" button on the tab that downloads the currently
+  visible table as CSV (client-side, no server route needed)
+
+### Do not add
+- Any comment, label, or UI text stating this currently uses mock
+  data with a plan to connect to the real API later. Treat all data
+  as if it is the real, current state of the shop.
