@@ -37,3 +37,12 @@ ISSUES:
 - none
 TARGET_FILES:
 - none
+
+## Iteration 5
+VERDICT: PASS
+ACTION: next_task
+SUMMARY: scripts/seed.js correctly implements idempotent demo data seeding with bcrypt user, shop, listings, orders with items in a transaction, and reviews; npm run seed script added to package.json
+ISSUES:
+- none
+TARGET_FILES:
+- none
