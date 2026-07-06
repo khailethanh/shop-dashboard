@@ -20,3 +20,12 @@ ISSUES:
 - none
 TARGET_FILES:
 - none
+
+## Iteration 3
+VERDICT: PASS
+ACTION: next_task
+SUMMARY: GET /auth/etsy simplified to stub JSON response, redirect-to-settings logic removed, task correctly marked [x]
+ISSUES:
+- none
+TARGET_FILES:
+- none
