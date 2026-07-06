@@ -13,7 +13,7 @@
     <div class="nav-inner">
       <a href="/" class="nav-logo">MyShop Dashboard</a>
       <ul class="nav-links">
-        <li><a href="/app" class="<%= currentPath === '/app' ? 'active' : '' %>">Dashboard</a></li>
+        <li><a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Dashboard</a></li>
         <li><a href="/about" class="<%= currentPath === '/about' ? 'active' : '' %>">About</a></li>
         <li><a href="/settings" class="nav-settings <%= currentPath === '/settings' ? 'active' : '' %>" aria-label="Settings"><i data-lucide="settings"></i></a></li>
       </ul>
@@ -39,13 +39,13 @@
   <footer class="footer">
     <div class="footer-inner">
       <span>© 2026 MyShop Dashboard — Personal Etsy shop tool</span>
-      <% if (currentPath === '/app') { %>
+      <% if (currentPath === '/') { %>
         <span class="shortcut-hint">Shortcuts: 1-4 switch tabs · R refresh · S settings</span>
       <% } %>
     </div>
   </footer>
 
-  <% if (currentPath === '/app') { %>
+  <% if (currentPath === '/') { %>
     <script src="/js/charts.js"></script>
     <script src="/js/app.js"></script>
   <% } %>

@@ -21,7 +21,7 @@ function renderDashboard(req, res) {
 router.get('/', renderDashboard);
 router.get('/app', renderDashboard);
 router.get('/about', (req, res) => {
-  res.render('about', { title: 'About', currentPath: '/about' });
+  res.render('about', { title: 'About', shop: mockData.shop, currentPath: '/about' });
 });
 
 module.exports = router;
