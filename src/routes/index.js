@@ -4,24 +4,21 @@ const mockData = require('../data/mockData');
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  res.render('landing', { title: 'Welcome', shop: mockData.shop, currentPath: '/' });
-});
-
-router.get('/app', (req, res) => {
+function renderDashboard(req, res) {
   res.render('app', {
     title: 'Dashboard',
     shop: mockData.shop,
     stats: mockData.stats,
+    listings: mockData.listings,
+    orders: mockData.orders,
     recentOrders: mockData.recentOrders,
     revenueByDay: mockData.revenueByDay,
     analyticsData: mockData.analyticsData,
-    currentPath: '/app',
+    currentPath: '/',
   });
-});
+}
 
-router.get('/about', (req, res) => {
-  res.render('about', { title: 'About', shop: mockData.shop, currentPath: '/about' });
-});
+router.get('/', renderDashboard);
+router.get('/app', renderDashboard);
 
 module.exports = router;
