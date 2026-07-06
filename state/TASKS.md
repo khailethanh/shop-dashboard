@@ -18,7 +18,7 @@
 - [x] Implement `public/js/settings.js` — localStorage load on page load, save on button click, 3-second toast notification
 - [x] Write `Dockerfile` using node:20-alpine, WORKDIR /app, npm ci --omit=dev, COPY source, EXPOSE 3000, ENV PORT=3000, CMD node src/app.js
 - [x] Write `docker-compose.yml` with app service, ports `${APP_PORT:-4000}:3000`, env_file `.env`, and healthcheck hitting `/api/status`
-- [ ] Phase 2 — Update `src/data/mockData.js`: add `shippingAddress` and `notes` fields to all 10 orders; add `topListingsByRevenue` array (top 5 by revenue, computed from orders) and `revenueByWeek` array (6 weeks) to `analyticsData`
+- [~] Phase 2 — Update `src/data/mockData.js`: add `shippingAddress` and `notes` fields to all 10 orders; add `topListingsByRevenue` array (top 5 by revenue, computed from orders) and `revenueByWeek` array (6 weeks) to `analyticsData`
 - [ ] Phase 2 — Update `src/routes/index.js`: make `GET /` render `app.ejs` (the dashboard) with the same data as `/app`; keep `/app` as an alias; remove the landing route
 - [ ] Phase 2 — Update `src/routes/auth.js`: remove redirect-to-`/settings?notice=api_key_required` logic from `GET /auth/etsy`; keep the route but simplify to a stub redirect or JSON response
 - [ ] Phase 2 — Delete `src/views/landing.ejs` and update `src/views/settings.ejs`: remove `?notice=api_key_required` yellow notice block; add a static "Connection" section (Status: Connected, Last synced, Next sync: Automatic)

@@ -14,16 +14,68 @@ const listings = [
 ];
 
 const orders = [
-  { id: 'O1001', buyerName: 'Alice Johnson', date: '2026-04-07', items: [{ title: 'Hand-painted Watercolour Cat Print', qty: 1 }], itemCount: 1, total: 24.99, status: 'completed' },
-  { id: 'O1002', buyerName: 'Bob Martinez', date: '2026-04-18', items: [{ title: 'Minimalist Mountain Line Art', qty: 2 }], itemCount: 2, total: 37.00, status: 'completed' },
-  { id: 'O1003', buyerName: 'Carol Smith', date: '2026-05-03', items: [{ title: 'Personalised Name Necklace', qty: 1 }], itemCount: 1, total: 45.00, status: 'completed' },
-  { id: 'O1004', buyerName: 'David Lee', date: '2026-05-20', items: [{ title: 'Handmade Soy Candle — Lavender', qty: 1 }, { title: 'Botanical Pressed Flower Bookmark', qty: 2 }], itemCount: 3, total: 46.00, status: 'cancelled' },
-  { id: 'O1005', buyerName: 'Emma Wilson', date: '2026-06-02', items: [{ title: 'Macramé Wall Hanging — Small', qty: 1 }], itemCount: 1, total: 38.00, status: 'completed' },
-  { id: 'O1006', buyerName: 'Frank Brown', date: '2026-06-11', items: [{ title: 'Custom Pet Portrait — Digital', qty: 1 }], itemCount: 1, total: 55.00, status: 'completed' },
-  { id: 'O1007', buyerName: 'Grace Kim', date: '2026-06-19', items: [{ title: 'Hand-lettered Motivational Print', qty: 2 }], itemCount: 2, total: 39.98, status: 'completed' },
-  { id: 'O1008', buyerName: 'Henry Patel', date: '2026-06-25', items: [{ title: 'Personalised Name Necklace', qty: 1 }], itemCount: 1, total: 45.00, status: 'open' },
-  { id: 'O1009', buyerName: 'Isabel Chen', date: '2026-07-01', items: [{ title: 'Minimalist Mountain Line Art', qty: 1 }, { title: 'Hand-painted Watercolour Cat Print', qty: 1 }], itemCount: 2, total: 43.49, status: 'open' },
-  { id: 'O1010', buyerName: 'James Taylor', date: '2026-07-04', items: [{ title: 'Handmade Soy Candle — Lavender', qty: 2 }], itemCount: 2, total: 44.00, status: 'open' },
+  {
+    id: 'O1001', buyerName: 'Alice Johnson', date: '2026-04-07',
+    items: [{ title: 'Hand-painted Watercolour Cat Print', qty: 1 }], itemCount: 1, total: 24.99, status: 'completed',
+    shippingAddress: { street: '14 Maple Ave', city: 'Portland', state: 'OR', zip: '97201', country: 'USA' },
+    notes: 'Please gift-wrap if possible.',
+  },
+  {
+    id: 'O1002', buyerName: 'Bob Martinez', date: '2026-04-18',
+    items: [{ title: 'Minimalist Mountain Line Art', qty: 2 }], itemCount: 2, total: 37.00, status: 'completed',
+    shippingAddress: { street: '8 Oak Street', city: 'Denver', state: 'CO', zip: '80203', country: 'USA' },
+    notes: '',
+  },
+  {
+    id: 'O1003', buyerName: 'Carol Smith', date: '2026-05-03',
+    items: [{ title: 'Personalised Name Necklace', qty: 1 }], itemCount: 1, total: 45.00, status: 'completed',
+    shippingAddress: { street: '22 Birch Lane', city: 'Austin', state: 'TX', zip: '78701', country: 'USA' },
+    notes: 'Engrave "Carol" on the necklace.',
+  },
+  {
+    id: 'O1004', buyerName: 'David Lee', date: '2026-05-20',
+    items: [{ title: 'Handmade Soy Candle — Lavender', qty: 1 }, { title: 'Botanical Pressed Flower Bookmark', qty: 2 }],
+    itemCount: 3, total: 46.00, status: 'cancelled',
+    shippingAddress: { street: '5 Pine Road', city: 'Seattle', state: 'WA', zip: '98101', country: 'USA' },
+    notes: '',
+  },
+  {
+    id: 'O1005', buyerName: 'Emma Wilson', date: '2026-06-02',
+    items: [{ title: 'Macramé Wall Hanging — Small', qty: 1 }], itemCount: 1, total: 38.00, status: 'completed',
+    shippingAddress: { street: '77 Cedar Blvd', city: 'Chicago', state: 'IL', zip: '60601', country: 'USA' },
+    notes: '',
+  },
+  {
+    id: 'O1006', buyerName: 'Frank Brown', date: '2026-06-11',
+    items: [{ title: 'Custom Pet Portrait — Digital', qty: 1 }], itemCount: 1, total: 55.00, status: 'completed',
+    shippingAddress: { street: '33 Elm Street', city: 'Boston', state: 'MA', zip: '02101', country: 'USA' },
+    notes: 'Dog is a golden retriever, ref photo sent via message.',
+  },
+  {
+    id: 'O1007', buyerName: 'Grace Kim', date: '2026-06-19',
+    items: [{ title: 'Hand-lettered Motivational Print', qty: 2 }], itemCount: 2, total: 39.98, status: 'completed',
+    shippingAddress: { street: '101 Walnut Way', city: 'Nashville', state: 'TN', zip: '37201', country: 'USA' },
+    notes: '',
+  },
+  {
+    id: 'O1008', buyerName: 'Henry Patel', date: '2026-06-25',
+    items: [{ title: 'Personalised Name Necklace', qty: 1 }], itemCount: 1, total: 45.00, status: 'open',
+    shippingAddress: { street: '55 Willow Court', city: 'Phoenix', state: 'AZ', zip: '85001', country: 'USA' },
+    notes: 'Engrave "Henry & Priya" as two lines.',
+  },
+  {
+    id: 'O1009', buyerName: 'Isabel Chen', date: '2026-07-01',
+    items: [{ title: 'Minimalist Mountain Line Art', qty: 1 }, { title: 'Hand-painted Watercolour Cat Print', qty: 1 }],
+    itemCount: 2, total: 43.49, status: 'open',
+    shippingAddress: { street: '9 Aspen Circle', city: 'San Francisco', state: 'CA', zip: '94102', country: 'USA' },
+    notes: '',
+  },
+  {
+    id: 'O1010', buyerName: 'James Taylor', date: '2026-07-04',
+    items: [{ title: 'Handmade Soy Candle — Lavender', qty: 2 }], itemCount: 2, total: 44.00, status: 'open',
+    shippingAddress: { street: '18 Spruce Lane', city: 'Atlanta', state: 'GA', zip: '30301', country: 'USA' },
+    notes: '',
+  },
 ];
 
 const recentOrders = orders.slice(-5);
@@ -37,6 +89,27 @@ const revenueByDay = [
   { date: '2026-07-04', revenue: 44.00 },
   { date: '2026-07-05', revenue: 0 },
 ];
+
+// Compute topListingsByRevenue from orders at module load time
+// Map listing titles found in order items to total revenue
+const _revMap = {};
+orders.forEach(order => {
+  if (order.status === 'cancelled') return;
+  // Distribute order total proportionally by qty across items
+  const totalQty = order.items.reduce((sum, it) => sum + it.qty, 0);
+  order.items.forEach(item => {
+    const share = totalQty > 0 ? (item.qty / totalQty) * order.total : 0;
+    _revMap[item.title] = (_revMap[item.title] || 0) + share;
+  });
+});
+
+const topListingsByRevenue = Object.entries(_revMap)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 5)
+  .map(([title, revenue]) => ({
+    title: title.length > 20 ? title.slice(0, 20) : title,
+    revenue: Math.round(revenue * 100) / 100,
+  }));
 
 const analyticsData = {
   topListings: [
@@ -63,6 +136,15 @@ const analyticsData = {
     { month: 'Jun', revenue: 232.97 },
     { month: 'Jul', revenue: 87.49 },
   ],
+  revenueByWeek: [
+    { week: 'May W4', revenue: 45.00 },
+    { week: 'Jun W1', revenue: 83.00 },
+    { week: 'Jun W2', revenue: 93.00 },
+    { week: 'Jun W3', revenue: 94.98 },
+    { week: 'Jun W4', revenue: 45.00 },
+    { week: 'Jul W1', revenue: 87.49 },
+  ],
+  topListingsByRevenue,
   conversionRate: 3.2,
 };
 
