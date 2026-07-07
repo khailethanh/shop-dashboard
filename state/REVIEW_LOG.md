@@ -60,3 +60,12 @@ ISSUES:
 - none
 TARGET_FILES:
 - none
+
+## Iteration 7
+VERDICT: PASS
+ACTION: next_task
+SUMMARY: reviews.js correctly implements POST /reviews/:id/respond and POST /reviews/:id/flag, both scoped to active shop via shop_id guard, matching DESIGN.md spec exactly; tests pass.
+ISSUES:
+- none
+TARGET_FILES:
+- none
