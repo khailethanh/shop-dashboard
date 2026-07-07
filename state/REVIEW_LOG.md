@@ -40,3 +40,23 @@ ISSUES:
 - none
 TARGET_FILES:
 - none
+
+## Iteration 5
+VERDICT: FAIL
+ACTION: fix_code
+SUMMARY: POST /orders/bulk-process deviates from DESIGN.md on both request body key and response shape; coder also violated the phase contract by marking the task [x] themselves.
+ISSUES:
+- DESIGN.md line 250 specifies the bulk-process endpoint accepts body `{ ids: [] }`, but the implementation reads `req.body.orderIds` instead. The frontend (and any caller following the spec) will send `ids`, so bulk-process will always receive an empty/undefined array and return 400.
+- DESIGN.md line 250 specifies the bulk-process endpoint returns `{ updated: N }` (count of affected rows), but the implementation returns `{ ok: true }`. The `db.prepare().run()` result object has a `.changes` property that should be used as `updated`.
+- The coder marked task line 40 of TASKS.md as `[x]` themselves, bypassing the reviewer's exclusive right to flip that status. The task should have been left at `[~]` after the coder's run. This must be corrected as a follow-up.
+TARGET_FILES:
+- /workspace/src/routes/orders.js
+
+## Iteration 6
+VERDICT: PASS
+ACTION: next_task
+SUMMARY: bulk-process now reads req.body.ids and returns { updated: result.changes } matching DESIGN.md spec exactly; tests pass.
+ISSUES:
+- none
+TARGET_FILES:
+- none
