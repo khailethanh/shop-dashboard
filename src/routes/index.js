@@ -35,7 +35,8 @@ router.get('/', renderDashboard);
 router.get('/app', renderDashboard);
 
 router.get('/about', (req, res) => {
-  res.render('about', { title: 'About', shop: res.locals.activeShop, currentPath: '/about' });
+  const shop = res.locals.activeShop || { name: '', isStarSeller: false, totalSales: 0, lastSynced: new Date().toISOString() };
+  res.render('about', { title: 'About', shop, currentPath: '/about' });
 });
 
 router.post('/shops/switch', (req, res) => {
