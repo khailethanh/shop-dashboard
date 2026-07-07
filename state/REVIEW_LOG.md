@@ -87,3 +87,13 @@ ISSUES:
 - none
 TARGET_FILES:
 - none
+
+## Iteration 10
+VERDICT: FAIL
+ACTION: fix_code
+SUMMARY: Two request body key mismatches in app.js cause bulk-process and review-respond to silently fail at runtime.
+ISSUES:
+- In the bulk-process fetch call (line 336 of public/js/app.js), the client sends `{ orderIds: ids.map(id => Number(id)) }` but src/routes/orders.js reads `const { ids } = req.body`. The server will receive `ids` as `undefined`, trigger the 400 guard, and bulk-process will never succeed. The key must be changed to `ids` to match the server.
+- In the review respond fetch call (line 591 of public/js/app.js), the client sends `JSON.stringify({ response })` but src/routes/reviews.js reads `const { shop_response } = req.body`. The server will save `null` for every response, silently discarding user input. The key must be changed to `shop_response` to match the server.
+TARGET_FILES:
+- /workspace/public/js/app.js
