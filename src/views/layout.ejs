@@ -13,24 +13,49 @@
     <div class="nav-inner">
       <a href="/" class="nav-logo">MyShop Dashboard</a>
       <ul class="nav-links">
-        <li><a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Dashboard</a></li>
-        <li><a href="/about" class="<%= currentPath === '/about' ? 'active' : '' %>">About</a></li>
-        <li><a href="/settings" class="nav-settings <%= currentPath === '/settings' ? 'active' : '' %>" aria-label="Settings"><i data-lucide="settings"></i></a></li>
+        <% if (locals.user) { %>
+          <li><a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Dashboard</a></li>
+          <li><a href="/about" class="<%= currentPath === '/about' ? 'active' : '' %>">About</a></li>
+          <li><a href="/settings" class="nav-settings <%= currentPath === '/settings' ? 'active' : '' %>" aria-label="Settings"><i data-lucide="settings"></i></a></li>
+          <% if (locals.shops && locals.shops.length > 1) { %>
+            <li class="shop-switcher">
+              <form method="POST" action="/shops/switch" id="shopSwitcherForm">
+                <select name="shopId" class="shop-switcher-select" onchange="document.getElementById('shopSwitcherForm').submit()">
+                  <% shops.forEach(function(s) { %>
+                    <option value="<%= s.id %>" <%= (locals.activeShop && locals.activeShop.id === s.id) ? 'selected' : '' %>><%= s.name %></option>
+                  <% }); %>
+                </select>
+              </form>
+            </li>
+          <% } %>
+          <li><a href="/logout" class="nav-logout">Log out</a></li>
+        <% } else { %>
+          <li><a href="/login" class="<%= currentPath === '/login' ? 'active' : '' %>">Log in</a></li>
+          <li><a href="/signup" class="<%= currentPath === '/signup' ? 'active' : '' %>">Sign up</a></li>
+        <% } %>
       </ul>
     </div>
   </nav>
 
+  <% if (locals.user) { %>
   <div class="status-bar">
-    <span class="status-shop-name"><%= shop.name %></span>
-    <% if (shop.isStarSeller) { %>
-      <span class="badge badge-star">⭐ Star Seller</span>
+    <span class="status-shop-name"><%= locals.activeShop ? locals.activeShop.name : 'No shop selected' %></span>
+    <% if (locals.activeShop && locals.activeShop.is_star_seller) { %>
+      <span class="badge badge-star">&#x2B50; Star Seller</span>
     <% } %>
-    <span class="status-sales"><%= shop.totalSales %> sales</span>
+    <% if (typeof shop !== 'undefined' && shop && shop.totalSales !== undefined) { %>
+      <span class="status-sales"><%= shop.totalSales %> sales</span>
+    <% } %>
     <label class="status-vacation">
       <input type="checkbox" id="vacationToggle"> On Vacation
     </label>
-    <span class="status-synced">Last synced: <%= new Date(shop.lastSynced).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span>
+    <% if (locals.activeShop && locals.activeShop.last_synced) { %>
+      <span class="status-synced">Last synced: <%= new Date(locals.activeShop.last_synced).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span>
+    <% } else { %>
+      <span class="status-synced">Last synced: —</span>
+    <% } %>
   </div>
+  <% } %>
 
   <main class="content">
     <%- body %>
@@ -38,9 +63,9 @@
 
   <footer class="footer">
     <div class="footer-inner">
-      <span>© 2026 MyShop Dashboard — Personal Etsy shop tool</span>
+      <span>&copy; 2026 MyShop Dashboard — Personal Etsy shop tool</span>
       <% if (currentPath === '/') { %>
-        <span class="shortcut-hint">Shortcuts: 1-4 switch tabs · R refresh · S settings</span>
+        <span class="shortcut-hint">Shortcuts: 1-5 switch tabs · R refresh · S settings</span>
       <% } %>
     </div>
   </footer>
