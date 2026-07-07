@@ -66,7 +66,7 @@ function loadUser(req, res, next) {
   next();
 }
 
-const PUBLIC_PATHS = new Set(['/login', '/logout', '/signup', '/about']);
+const PUBLIC_PATHS = new Set(['/login', '/logout', '/signup', '/about', '/api/status', '/', '/settings']);
 
 function requireAuth(req, res, next) {
   if (res.locals.user) return next();
