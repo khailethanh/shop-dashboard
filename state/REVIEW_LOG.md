@@ -18,3 +18,12 @@ ISSUES:
 - none
 TARGET_FILES:
 - none
+
+## Iteration 3
+VERDICT: PASS
+ACTION: next_task
+SUMMARY: docker-compose.yml updated correctly — port default removed (${APP_PORT}:3000), named volume db-data added at /app/data for SQLite persistence; SESSION_SECRET is covered by the existing env_file directive; tests pass overall.
+ISSUES:
+- none
+TARGET_FILES:
+- none
