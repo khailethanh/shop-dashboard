@@ -23,19 +23,19 @@ router.post('/orders/:id/fulfill', (req, res) => {
 
 router.post('/orders/bulk-process', (req, res) => {
   const shopId = req.session.activeShopId;
-  const { orderIds } = req.body;
+  const { ids } = req.body;
 
   if (!shopId) return res.status(403).json({ ok: false, error: 'No active shop' });
-  if (!Array.isArray(orderIds) || orderIds.length === 0) {
-    return res.status(400).json({ ok: false, error: 'orderIds must be a non-empty array' });
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ ok: false, error: 'ids must be a non-empty array' });
   }
 
-  const placeholders = orderIds.map(() => '?').join(', ');
-  db.prepare(
+  const placeholders = ids.map(() => '?').join(', ');
+  const result = db.prepare(
     `UPDATE orders SET status = 'processing' WHERE id IN (${placeholders}) AND shop_id = ?`
-  ).run(...orderIds, shopId);
+  ).run(...ids, shopId);
 
-  res.json({ ok: true });
+  res.json({ updated: result.changes });
 });
 
 module.exports = router;
