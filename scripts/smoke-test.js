@@ -87,6 +87,7 @@ async function main() {
 
   try {
     const page = await browser.newPage();
+    await page.setCacheEnabled(false);
 
     await login(page);
 
