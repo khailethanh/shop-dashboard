@@ -5,7 +5,7 @@
 
 const puppeteer = require('puppeteer-core');
 
-const BASE_URL = process.env.SMOKE_BASE_URL || 'http://localhost:19999';
+const BASE_URL = process.argv[2] || process.env.SMOKE_BASE_URL || 'http://localhost:19999';
 const EXECUTABLE_PATH = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium';
 
 const failures = [];

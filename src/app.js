@@ -66,7 +66,7 @@ function loadUser(req, res, next) {
   next();
 }
 
-const PUBLIC_PATHS = new Set(['/login', '/logout', '/signup', '/about', '/api/status', '/', '/settings']);
+const PUBLIC_PATHS = new Set(['/login', '/logout', '/signup', '/about']);
 
 function requireAuth(req, res, next) {
   if (res.locals.user) return next();
@@ -79,6 +79,12 @@ function authGuard(req, res, next) {
 }
 
 app.use(loadUser);
+
+// Health check: must stay reachable without a session (Docker healthcheck,
+// uptime probes) and must never leak shop data to an unauthenticated caller.
+app.get('/api/status', (req, res) => {
+  res.json({ ok: true });
+});
 
 app.use('/', authRouter);
 app.use(authGuard);
