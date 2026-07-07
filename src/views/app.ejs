@@ -2,14 +2,20 @@
   window.__REVENUE_DATA__ = <%- JSON.stringify(revenueByDay) %>;
   window.__ANALYTICS__ = <%- JSON.stringify(analyticsData) %>;
   window.__ORDERS_DATA__ = <%- JSON.stringify(orders) %>;
+  window.__REVIEWS__ = <%- JSON.stringify(reviews || []) %>;
+  window.__SHOPS__ = <%- JSON.stringify(shops || []) %>;
 </script>
 
 <div class="tabs-container">
   <div class="tab-buttons" role="tablist">
     <button class="tab-btn active" role="tab" aria-selected="true" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" role="tab" aria-selected="false" data-tab="listings">Listings</button>
-    <button class="tab-btn" role="tab" aria-selected="false" data-tab="orders">Orders</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="orders" id="orders-tab-btn">
+      Orders
+      <span class="tab-badge" id="overdue-badge" style="display:none">0</span>
+    </button>
     <button class="tab-btn" role="tab" aria-selected="false" data-tab="analytics">Analytics</button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="reviews">Reviews</button>
   </div>
 
   <!-- Dashboard Tab -->
@@ -34,6 +40,16 @@
         <span class="stat-label">Active Listings</span>
         <span class="stat-value"><%= stats.activeListings.value %></span>
         <span class="stat-trend"><%= stats.activeListings.trend %></span>
+      </div>
+      <div class="stat-card stat-card--clickable" id="pending-fulfillment-card" style="cursor:pointer" title="Click to view pending orders">
+        <span class="stat-label">Needs Fulfillment</span>
+        <span class="stat-value" id="pending-fulfillment-count">—</span>
+        <span class="stat-trend">pending orders</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Avg Rating</span>
+        <span class="stat-value" id="avg-rating-value">—</span>
+        <span class="stat-trend" id="avg-rating-sub">from reviews</span>
       </div>
     </div>
 
@@ -101,6 +117,10 @@
 
   <!-- Orders Tab -->
   <div id="tab-orders" class="tab-panel" hidden>
+    <div class="bulk-action-bar" id="bulk-action-bar" style="display:none">
+      <span id="bulk-selected-count">0 selected</span>
+      <button class="btn btn-primary" id="bulk-process-btn">Mark as Processing</button>
+    </div>
     <div class="orders-toolbar">
       <input id="orders-search" type="text" class="input" placeholder="Search buyer or order ID">
       <select id="orders-sort" class="select">
@@ -111,8 +131,10 @@
       </select>
       <select id="ordersStatusFilter" class="select">
         <option value="">All Statuses</option>
-        <option value="open">Open</option>
-        <option value="completed">Completed</option>
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
         <option value="cancelled">Cancelled</option>
       </select>
       <input type="date" id="ordersDateFrom" class="input" aria-label="From date">
@@ -121,6 +143,7 @@
     <table class="table" id="ordersTable">
       <thead>
         <tr>
+          <th class="checkbox-col"><input type="checkbox" id="orders-select-all" aria-label="Select all orders"></th>
           <th>Order</th>
           <th>Buyer</th>
           <th>Date</th>
@@ -176,6 +199,38 @@
       </div>
     </div>
   </div>
+
+  <!-- Reviews Tab -->
+  <div id="tab-reviews" class="tab-panel" hidden>
+    <div class="reviews-toolbar">
+      <label for="reviews-filter-rating" class="sr-only">Filter by rating</label>
+      <select id="reviews-filter-rating" class="select">
+        <option value="">All Ratings</option>
+        <option value="5">5 ★</option>
+        <option value="4">4 ★</option>
+        <option value="3">3 ★</option>
+        <option value="2">2 ★</option>
+        <option value="1">1 ★</option>
+      </select>
+      <label for="reviews-filter-responded" class="sr-only">Filter by response status</label>
+      <select id="reviews-filter-responded" class="select">
+        <option value="">All</option>
+        <option value="responded">Responded</option>
+        <option value="not_responded">Not Responded</option>
+      </select>
+      <label for="reviews-filter-flagged" class="sr-only">Filter by flagged</label>
+      <select id="reviews-filter-flagged" class="select">
+        <option value="">All</option>
+        <option value="flagged">Flagged Only</option>
+      </select>
+    </div>
+    <div id="reviews-list">
+      <!-- Review cards are rendered by public/js/app.js -->
+    </div>
+    <div id="reviews-empty" class="empty-state" style="display:none">
+      <p>No reviews match your filters.</p>
+    </div>
+  </div>
 </div>
 
 <!-- Order Detail Modal -->
@@ -184,5 +239,20 @@
     <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
     <h2 id="modalTitle">Order Detail</h2>
     <div id="modalBody"></div>
+    <div class="fulfillment-fields" id="fulfillment-fields" style="display:none">
+      <h3>Fulfillment</h3>
+      <div class="fulfillment-form">
+        <div class="form-group">
+          <label for="fulfillment-carrier">Carrier</label>
+          <input type="text" id="fulfillment-carrier" class="input" placeholder="e.g. USPS, FedEx, UPS">
+        </div>
+        <div class="form-group">
+          <label for="fulfillment-tracking">Tracking Number</label>
+          <input type="text" id="fulfillment-tracking" class="input" placeholder="Enter tracking number">
+        </div>
+        <button class="btn btn-primary" id="mark-shipped-btn">Mark as Shipped</button>
+        <span class="fulfillment-msg" id="fulfillment-msg"></span>
+      </div>
+    </div>
   </div>
 </div>
