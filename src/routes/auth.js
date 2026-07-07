@@ -23,7 +23,10 @@ router.post('/login', async (req, res) => {
     req.session.regenerate((err) => {
       if (err) return res.render('login', { layout: false, error: 'Login failed. Please try again.' });
       req.session.userId = user.id;
-      res.redirect('/');
+      req.session.save((saveErr) => {
+        if (saveErr) return res.render('login', { layout: false, error: 'Login failed.' });
+        res.redirect('/');
+      });
     });
   } catch (err) {
     console.error('Login error:', err);
@@ -55,9 +58,12 @@ router.post('/signup', async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
     const result = db.prepare('INSERT INTO users (email, password_hash) VALUES (?, ?)').run(email.trim().toLowerCase(), hash);
     req.session.regenerate((err) => {
-      if (err) return res.render('signup', { error: 'Signup failed. Please try again.' });
+      if (err) return res.render('signup', { layout: false, error: 'Signup failed. Please try again.' });
       req.session.userId = result.lastInsertRowid;
-      res.redirect('/shops/add');
+      req.session.save((saveErr) => {
+        if (saveErr) return res.render('signup', { layout: false, error: 'Signup failed.' });
+        res.redirect('/shops/add');
+      });
     });
   } catch (err) {
     console.error('Signup error:', err);
