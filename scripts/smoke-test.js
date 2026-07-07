@@ -68,6 +68,16 @@ async function checkPageLoads(page, path) {
   }
 }
 
+async function login(page) {
+  await page.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle0', timeout: 15000 });
+  await page.type('#email', 'demo@example.com');
+  await page.type('#password', 'password123');
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 15000 }),
+    page.click('button[type="submit"]'),
+  ]);
+}
+
 async function main() {
   const browser = await puppeteer.launch({
     executablePath: EXECUTABLE_PATH,
@@ -77,6 +87,8 @@ async function main() {
 
   try {
     const page = await browser.newPage();
+
+    await login(page);
 
     await withErrorCapture(page, 'load /', async () => {
       const response = await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle0', timeout: 15000 });
