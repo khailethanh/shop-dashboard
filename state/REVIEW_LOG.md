@@ -69,3 +69,12 @@ ISSUES:
 - none
 TARGET_FILES:
 - none
+
+## Iteration 8
+VERDICT: PASS
+ACTION: next_task
+SUMMARY: layout.ejs updated with auth-conditional nav, shop switcher dropdown POSTing to /shops/switch, Log out link, and active shop name in status bar, matching DESIGN.md requirements; tests pass.
+ISSUES:
+- none
+TARGET_FILES:
+- none
