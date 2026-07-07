@@ -333,7 +333,7 @@
       const res = await fetch('/orders/bulk-process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderIds: ids.map(id => Number(id)) }),
+        body: JSON.stringify({ ids: ids.map(id => Number(id)) }),
       });
       if (!res.ok) throw new Error('Server error');
       // Refresh orders
@@ -587,7 +587,7 @@
               const res = await fetch(`/reviews/${reviewId}/respond`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ response }),
+                body: JSON.stringify({ shop_response: response }),
               });
               if (!res.ok) throw new Error('Server error');
 
