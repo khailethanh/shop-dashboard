@@ -4,6 +4,10 @@ const db = require('../db');
 
 const router = express.Router();
 
+router.get('/api/status', (req, res) => {
+  res.json({ connected: false, shop: res.locals.activeShop || null });
+});
+
 router.get('/api/mock/listings', (req, res) => {
   const shopId = req.session && req.session.activeShopId;
   if (!shopId) return res.json([]);
