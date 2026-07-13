@@ -1,25 +1,29 @@
 # MyShop Dashboard
 
-A personal, single-owner dashboard for tracking and analysing an Etsy
-shop's performance — orders, listings, and sales trends in one place.
-Built as a self-hosted tool for the shop owner, not a multi-tenant SaaS.
+A personal, single-owner dashboard for order tracking & fulfillment,
+revenue analytics, and review management for an Etsy shop. Built as a
+self-hosted tool for the shop owner, not a multi-tenant SaaS.
 
 ## What it's for
 
-Running an Etsy shop means checking sales, order status, and listing
-performance across scattered pages. This app pulls that into one screen
-with four views:
+Running an Etsy shop means checking sales, order status, and reviews
+across scattered pages. This app pulls that into one screen with five
+views:
 
 - **Dashboard** — key stats (orders, revenue, average order value,
   active listings) and a 7-day revenue chart at a glance
-- **Listings** — search, sort, and paginate through all listings with
-  price, quantity, and view counts
-- **Orders** — filter by status and date, search by buyer or order ID,
-  sort by date/total, and drill into an order's shipping address and
-  notes
-- **Analytics** — top listings by views and by revenue, orders by day
-  of week, revenue by day/week/month with period toggle and
-  percent-change badge, and CSV export
+- **Orders tracking & fulfillment** — filter by status and date,
+  search by buyer or order ID, sort by date/total, drill into an
+  order's shipping address and notes, and mark orders fulfilled
+- **Analytics & revenue insights** — top listings by views and by
+  revenue, orders by day of week, revenue by day/week/month with
+  period toggle and percent-change badge, and CSV export
+- **Review management** — view buyer reviews and ratings, respond to
+  reviews, and flag ones that need follow-up
+- **Listings** — a read-only view of existing listings (price,
+  quantity, view counts); this app does not create, edit, or manage
+  listings — Etsy's Personal Access API tier does not grant listing
+  management scopes, only read access to shop/order/review data
 
 Keyboard shortcuts (`1`–`4` to switch tabs, `R` to refresh, `S` for
 settings) make it fast to use day-to-day.

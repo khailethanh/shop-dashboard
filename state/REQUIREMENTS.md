@@ -1,5 +1,12 @@
 # Requirements
 
+> **Note (2026-07-13):** Etsy's Personal Access API tier does not grant
+> listing create/edit scopes — only read access to shop/order/review
+> data. The Listings tab remains read-only (view existing listings,
+> price, quantity, views). Do not implement listing create/edit
+> features described anywhere below; app scope is order tracking &
+> fulfillment, analytics, and review management. See README.md.
+
 ## What to build
 
 A personal Etsy shop dashboard — a polished single-owner web app for
